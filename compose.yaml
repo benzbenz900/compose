@@ -5,6 +5,9 @@ include:
   - ./compose-minio.yaml
   - ./compose-traefik.yaml
 
+networks:
+  host:
+
 volumes:
   dbPostgreSQL:
     driver: local
