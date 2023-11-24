@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  keycloak-service:
+    depends_on:
+      - traefik-gateway
+      - PostgreSQLDB
+    networks:
+      - public
+    restart: always
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-keycloak-container-theme:${IMAGE_TAG}
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: PostgreSQLDB
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_SCHEMA: public
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: ${KEYCLOAKADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAKADMINPASS}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_HTTP_ENABLED: "true"
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+          - traefik.enable=true
+          - traefik.http.routers.keycloak-service.entrypoints=${TRAEFIK_ENTRYPOINT}
+          - traefik.http.routers.keycloak-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/usermanagement`)
+          - traefik.http.services.keycloak-service.loadbalancer.server.port=8080

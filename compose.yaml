@@ -1,0 +1,20 @@
+include:
+  - ./compose-api.yaml
+  - ./compose-keycloak.yaml
+  - ./compose-database.yaml
+  - ./compose-minio.yaml
+  - ./compose-traefik.yaml
+
+networks:
+  public:
+    external: true
+
+volumes:
+  dbPostgreSQL:
+    driver: local
+  
+  mongo_storage:
+    driver: local
+  
+  minio_storage:
+    driver: local

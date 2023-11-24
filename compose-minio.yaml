@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  minio-service:
+    depends_on:
+      - traefik-gateway
+    networks:
+      - public
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.minio-service.entrypoints=${TRAEFIK_ENTRYPOINT}
+        - traefik.http.routers.minio-service.rule=Host(`${TRAEFIK_HOST}`)
+        - traefik.http.routers.minio-service.service=minio-service
+        - traefik.http.services.minio-service.loadbalancer.server.port=9000
+
+        - traefik.http.routers.minio-service-admin.entrypoints=${TRAEFIK_ENTRYPOINT}
+        - traefik.http.routers.minio-service-admin.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/admin`)
+        - traefik.http.routers.minio-service-admin.service=minio-service-admin
+        - traefik.http.services.minio-service-admin.loadbalancer.server.port=9001
+    image: minio/minio:RELEASE.2023-08-29T23-07-35Z
+    volumes:
+      - minio_storage:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_DOMAIN: ${TRAEFIK_HOST}
+      MINIO_BROWSER_REDIRECT_URL: ${HTTP_OR_HTTPS}${TRAEFIK_HOST}/admin
+    command: server /data --console-address ":9001"
