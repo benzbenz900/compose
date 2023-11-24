@@ -28,4 +28,6 @@ services:
         - traefik.enable=true
         - traefik.http.routers.keycloak-service.entrypoints=${TRAEFIK_ENTRYPOINT}
         - traefik.http.routers.keycloak-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/usermanagement`)
+        - traefik.http.routers.keycloak-service.middlewares=keycloak-service-1
+        - traefik.http.middlewares.keycloak-service-1.stripprefix.prefixes=/usermanagement
         - traefik.http.services.keycloak-service.loadbalancer.server.port=8080
