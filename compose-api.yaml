@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   onefence-data-mapping-service:
-    network:
+    networks:
       - host
     restart: always
     environment:
@@ -25,7 +25,7 @@ services:
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-data-mapping-service:${IMAGE_TAG}
 
   onefence-consent-v2-api:
-    network:
+    networks:
       - host
     restart: always
     environment:
@@ -49,7 +49,7 @@ services:
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-consent-v2-api:${IMAGE_TAG}
 
   onefence-usermanagement-organization:
-    network:
+    networks:
       - host
     depends_on:
       - traefik-gateway
@@ -82,7 +82,7 @@ services:
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-usermanagement-api:${IMAGE_TAG}
 
   onefence-log:
-    network:
+    networks:
       - host
     depends_on:
       - traefik-gateway
@@ -107,7 +107,7 @@ services:
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-log:${IMAGE_TAG}
 
   notification-service:
-    network:
+    networks:
       - host
     depends_on:
       - traefik-gateway
@@ -132,7 +132,7 @@ services:
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-notification-sns-websocket-sqs:${IMAGE_TAG}
 
   onefence-comment-service:
-    network:
+    networks:
       - host
     depends_on:
       - traefik-gateway
@@ -157,7 +157,7 @@ services:
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-comment-service:${IMAGE_TAG}
 
   onefence-file-management:
-    network:
+    networks:
       - host
     depends_on:
       - traefik-gateway

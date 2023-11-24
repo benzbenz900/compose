@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   minio-service:
-    network:
+    networks:
       - host
     depends_on:
       - traefik-gateway
