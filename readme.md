@@ -1,6 +1,22 @@
-# run 
-docker compose -p ntpdpa config -o BUILD_TAMPLATE.yaml
+# config install
+```sh
+apt install awscli
+aws configure
 
+AWS Access Key ID [None]: AKIAURXCKNYCYSNQ6ZVR
+AWS Secret Access Key [None]: 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
+Default region name [None]: ap-southeast-1
+
+aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com
+
+compose == v2.23.3
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+
+docker compose -p ntpdpa config -o BUILD_TAMPLATE.yaml
+docker-compose -f BUILD_TAMPLATE.yaml up -d
+```
 # image
 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-usermanagement-api:NT-dev1.0
 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-data-mapping-service:NT-dev1.0

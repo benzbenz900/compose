@@ -8,6 +8,7 @@ include:
 networks:
   public:
     external: true
+    driver: bridge
 
 volumes:
   dbPostgreSQL:
