@@ -2,7 +2,7 @@ version: "3.9"
 services:
   onefence-frontend-service:
     networks:
-      - public
+      - host
     restart: always
     environment:
       - environment=${RUN_MODE}
