@@ -1,4 +1,5 @@
 include:
+  - ./compose-front.yaml
   - ./compose-api.yaml
   - ./compose-keycloak.yaml
   - ./compose-database.yaml
