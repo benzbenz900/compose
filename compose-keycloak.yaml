@@ -4,7 +4,8 @@ services:
     depends_on:
       - traefik-gateway
       - PostgreSQLDB
-    
+    network:
+      - host
     restart: always
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-keycloak-container-theme:${IMAGE_TAG}
     environment:
@@ -20,11 +21,11 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
       KC_HTTP_ENABLED: "true"
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-          - traefik.enable=true
-          - traefik.http.routers.keycloak-service.entrypoints=${TRAEFIK_ENTRYPOINT}
-          - traefik.http.routers.keycloak-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/usermanagement`)
-          - traefik.http.services.keycloak-service.loadbalancer.server.port=8080
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    labels:
+        - traefik.enable=true
+        - traefik.http.routers.keycloak-service.entrypoints=${TRAEFIK_ENTRYPOINT}
+        - traefik.http.routers.keycloak-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/usermanagement`)
+        - traefik.http.services.keycloak-service.loadbalancer.server.port=8080

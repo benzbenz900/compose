@@ -1,12 +1,13 @@
 version: "3.9"
 services:
   PostgreSQLDB:
-    
+    network:
+      - host
     image: postgres:15.2-alpine
     restart: always
-    deploy:
-      mode: replicated
-      replicas: 1
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
     environment:
       - POSTGRES_USER=keycloak
       - POSTGRES_PASSWORD=password
@@ -14,11 +15,12 @@ services:
       - dbPostgreSQL:/var/lib/postgresql/data
 
   mongoDB:
-    
+    network:
+      - host
     image: mongo:6.0
     restart: always
-    deploy:
-      mode: replicated
-      replicas: 1
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
     volumes:
       - mongo_storage:/data/db

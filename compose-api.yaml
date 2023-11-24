@@ -1,7 +1,8 @@
 version: "3.9"
 services:
   onefence-data-mapping-service:
-    
+    network:
+      - host
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -10,21 +11,22 @@ services:
       - urlPeople=${HTTP_OR_HTTPS}onefence-usermanagement-organization:5003/user/org/user/
       - urlUser=${HTTP_OR_HTTPS}onefence-usermanagement-organization:5003/user/org/user/
       - urlOrg=${HTTP_OR_HTTPS}onefence-usermanagement-organization:5003/user/org/department/
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.onefence-data-mapping-service.entrypoints=${TRAEFIK_ENTRYPOINT}
-        
-        - traefik.http.routers.onefence-data-mapping-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/data-mapping`)
-        - traefik.http.routers.onefence-data-mapping-service.middlewares=onefence-data-mapping-1
-        - traefik.http.services.onefence-data-mapping-service.loadbalancer.server.port=5002
-        - traefik.http.middlewares.onefence-data-mapping-1.stripprefix.prefixes=/data-mapping
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.onefence-data-mapping-service.entrypoints=${TRAEFIK_ENTRYPOINT}
+      
+      - traefik.http.routers.onefence-data-mapping-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/data-mapping`)
+      - traefik.http.routers.onefence-data-mapping-service.middlewares=onefence-data-mapping-1
+      - traefik.http.services.onefence-data-mapping-service.loadbalancer.server.port=5002
+      - traefik.http.middlewares.onefence-data-mapping-1.stripprefix.prefixes=/data-mapping
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-data-mapping-service:${IMAGE_TAG}
 
   onefence-consent-v2-api:
-    
+    network:
+      - host
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -33,20 +35,22 @@ services:
       - urlPeople=${HTTP_OR_HTTPS}onefence-usermanagement-organization:5003/user/org/user/
       - urlUser=${HTTP_OR_HTTPS}onefence-usermanagement-organization:5003/user/org/user/
       - urlOrg=${HTTP_OR_HTTPS}onefence-usermanagement-organization:5003/user/org/department/
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.onefence-consent-v2-api.entrypoints=${TRAEFIK_ENTRYPOINT}
-        - traefik.http.routers.onefence-consent-v2-api.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/consentv2`)
-        
-        - traefik.http.routers.onefence-consent-v2-api.middlewares=onefence-consent-v2-api-1
-        - traefik.http.services.onefence-consent-v2-api.loadbalancer.server.port=5002
-        - traefik.http.middlewares.onefence-consent-v2-api-1.stripprefix.prefixes=/consentv2
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.onefence-consent-v2-api.entrypoints=${TRAEFIK_ENTRYPOINT}
+      - traefik.http.routers.onefence-consent-v2-api.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/consentv2`)
+      
+      - traefik.http.routers.onefence-consent-v2-api.middlewares=onefence-consent-v2-api-1
+      - traefik.http.services.onefence-consent-v2-api.loadbalancer.server.port=5002
+      - traefik.http.middlewares.onefence-consent-v2-api-1.stripprefix.prefixes=/consentv2
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-consent-v2-api:${IMAGE_TAG}
 
   onefence-usermanagement-organization:
+    network:
+      - host
     depends_on:
       - traefik-gateway
       - keycloak-service
@@ -64,20 +68,22 @@ services:
       - KEYCLOAKADMINPASS=${KEYCLOAKADMINPASS}
       - LogArnOrURLvm=${HTTP_OR_HTTPS}onefence-log:5004/event/
       - MongoDBURIVm=mongodb://mongoDB:27017/
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.onefence-usermanagement-organization.entrypoints=${TRAEFIK_ENTRYPOINT}
-        - traefik.http.routers.onefence-usermanagement-organization.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/organization`)
-        
-        - traefik.http.services.onefence-usermanagement-organization.loadbalancer.server.port=5003
-        - traefik.http.routers.onefence-usermanagement-organization.middlewares=onefence-usermanagement-organization-1
-        - traefik.http.middlewares.onefence-usermanagement-organization-1.stripprefix.prefixes=/organization
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.onefence-usermanagement-organization.entrypoints=${TRAEFIK_ENTRYPOINT}
+      - traefik.http.routers.onefence-usermanagement-organization.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/organization`)
+      
+      - traefik.http.services.onefence-usermanagement-organization.loadbalancer.server.port=5003
+      - traefik.http.routers.onefence-usermanagement-organization.middlewares=onefence-usermanagement-organization-1
+      - traefik.http.middlewares.onefence-usermanagement-organization-1.stripprefix.prefixes=/organization
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-usermanagement-api:${IMAGE_TAG}
 
   onefence-log:
+    network:
+      - host
     depends_on:
       - traefik-gateway
       - mongoDB
@@ -87,20 +93,22 @@ services:
       - environment=${RUN_MODE}
       - RUNLOCALVM=TRUE
       - MongoDBURIVm=mongodb://mongoDB:27017/
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.onefence-log.entrypoints=${TRAEFIK_ENTRYPOINT}
-        - traefik.http.routers.onefence-log.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/log`)
-        
-        - traefik.http.routers.onefence-log.middlewares=onefence-log
-        - traefik.http.services.onefence-log.loadbalancer.server.port=5004
-        - traefik.http.middlewares.onefence-log.stripprefix.prefixes=/log
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.onefence-log.entrypoints=${TRAEFIK_ENTRYPOINT}
+      - traefik.http.routers.onefence-log.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/log`)
+      
+      - traefik.http.routers.onefence-log.middlewares=onefence-log
+      - traefik.http.services.onefence-log.loadbalancer.server.port=5004
+      - traefik.http.middlewares.onefence-log.stripprefix.prefixes=/log
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-log:${IMAGE_TAG}
 
   notification-service:
+    network:
+      - host
     depends_on:
       - traefik-gateway
       - mongoDB
@@ -110,20 +118,22 @@ services:
       - environment=${RUN_MODE}
       - RUNLOCALVM=TRUE
       - MongoDBURIVm=mongodb://mongoDB:27017/
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.notification-service.entrypoints=${TRAEFIK_ENTRYPOINT}
-        - traefik.http.routers.notification-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/notification-service`)
-        
-        - traefik.http.routers.notification-service.middlewares=notification-service-1
-        - traefik.http.services.notification-service.loadbalancer.server.port=5006
-        - traefik.http.middlewares.notification-service-1.stripprefix.prefixes=/notification-service
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.notification-service.entrypoints=${TRAEFIK_ENTRYPOINT}
+      - traefik.http.routers.notification-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/notification-service`)
+      
+      - traefik.http.routers.notification-service.middlewares=notification-service-1
+      - traefik.http.services.notification-service.loadbalancer.server.port=5006
+      - traefik.http.middlewares.notification-service-1.stripprefix.prefixes=/notification-service
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-notification-sns-websocket-sqs:${IMAGE_TAG}
 
   onefence-comment-service:
+    network:
+      - host
     depends_on:
       - traefik-gateway
       - mongoDB
@@ -133,20 +143,22 @@ services:
       - environment=${RUN_MODE}
       - RUNLOCALVM=TRUE
       - MongoDBURIVm=mongodb://mongoDB:27017/
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.onefence-comment-service.entrypoints=${TRAEFIK_ENTRYPOINT}
-        - traefik.http.routers.onefence-comment-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/comment_service`)
-        
-        - traefik.http.routers.onefence-comment-service.middlewares=onefence-comment-service-1
-        - traefik.http.services.onefence-comment-service.loadbalancer.server.port=5007
-        - traefik.http.middlewares.onefence-comment-service-1.stripprefix.prefixes=/comment_service
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.onefence-comment-service.entrypoints=${TRAEFIK_ENTRYPOINT}
+      - traefik.http.routers.onefence-comment-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/comment_service`)
+      
+      - traefik.http.routers.onefence-comment-service.middlewares=onefence-comment-service-1
+      - traefik.http.services.onefence-comment-service.loadbalancer.server.port=5007
+      - traefik.http.middlewares.onefence-comment-service-1.stripprefix.prefixes=/comment_service
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-comment-service:${IMAGE_TAG}
 
   onefence-file-management:
+    network:
+      - host
     depends_on:
       - traefik-gateway
       - mongoDB
@@ -163,15 +175,15 @@ services:
       - MINIOendpointPublic=https://s3.pdpa.rmutsv.ac.th
       - MINIOAccessKey=sQbsujtsXHgRqbZ7fT56
       - MINIOSecretKey=E6LU34Px31p1tmXnDE5eeddYEMY9F3yS984MESPa
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.onefence-file-management.entrypoints=${TRAEFIK_ENTRYPOINT}
-        - traefik.http.routers.onefence-file-management.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/file_management`)
-        
-        - traefik.http.routers.onefence-file-management.middlewares=onefence-file-management-1
-        - traefik.http.services.onefence-file-management.loadbalancer.server.port=5007
-        - traefik.http.middlewares.onefence-file-management-1.stripprefix.prefixes=/file_management
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.onefence-file-management.entrypoints=${TRAEFIK_ENTRYPOINT}
+      - traefik.http.routers.onefence-file-management.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/file_management`)
+      
+      - traefik.http.routers.onefence-file-management.middlewares=onefence-file-management-1
+      - traefik.http.services.onefence-file-management.loadbalancer.server.port=5007
+      - traefik.http.middlewares.onefence-file-management-1.stripprefix.prefixes=/file_management
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-file-management:${IMAGE_TAG}
