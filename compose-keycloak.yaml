@@ -4,8 +4,7 @@ services:
     depends_on:
       - traefik-gateway
       - PostgreSQLDB
-    networks:
-      - public
+    
     restart: always
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-keycloak-container-theme:${IMAGE_TAG}
     environment:

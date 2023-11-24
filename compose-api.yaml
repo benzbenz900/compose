@@ -1,8 +1,7 @@
 version: "3.9"
 services:
   onefence-data-mapping-service:
-    networks:
-      - public
+    
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -25,8 +24,7 @@ services:
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-data-mapping-service:${IMAGE_TAG}
 
   onefence-consent-v2-api:
-    networks:
-      - public
+    
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -54,8 +52,7 @@ services:
       - keycloak-service
       - onefence-log
       - mongoDB
-    networks:
-      - public
+    
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -84,8 +81,7 @@ services:
     depends_on:
       - traefik-gateway
       - mongoDB
-    networks:
-      - public
+    
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -108,8 +104,7 @@ services:
     depends_on:
       - traefik-gateway
       - mongoDB
-    networks:
-      - public
+    
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -132,8 +127,7 @@ services:
     depends_on:
       - traefik-gateway
       - mongoDB
-    networks:
-      - public
+    
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -157,8 +151,7 @@ services:
       - traefik-gateway
       - mongoDB
       - minio-service
-    networks:
-      - public
+    
     restart: always
     environment:
       - environment=${RUN_MODE}

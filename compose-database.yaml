@@ -1,8 +1,7 @@
 version: "3.9"
 services:
   PostgreSQLDB:
-    networks:
-      - public
+    
     image: postgres:15.2-alpine
     restart: always
     deploy:
@@ -15,8 +14,7 @@ services:
       - dbPostgreSQL:/var/lib/postgresql/data
 
   mongoDB:
-    networks:
-      - public
+    
     image: mongo:6.0
     restart: always
     deploy:
