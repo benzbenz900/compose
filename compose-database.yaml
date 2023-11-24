@@ -9,8 +9,8 @@ services:
     #   mode: replicated
     #   replicas: 1
     environment:
-      - POSTGRES_USER=keycloak
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - dbPostgreSQL:/var/lib/postgresql/data
 

@@ -171,8 +171,8 @@ services:
       - MongoDBURIVm=mongodb://mongoDB:27017/
       - BUCKETPRIVATE=file-management-private
       - BUCKETPUBLIC=file-management-public
-      - MINIOendpoint=https://s3.pdpa.rmutsv.ac.th
-      - MINIOendpointPublic=https://s3.pdpa.rmutsv.ac.th
+      - MINIOendpoint=${TRAEFIK_HOST}/s3
+      - MINIOendpointPublic=${TRAEFIK_HOST}/s3
       - MINIOAccessKey=sQbsujtsXHgRqbZ7fT56
       - MINIOSecretKey=E6LU34Px31p1tmXnDE5eeddYEMY9F3yS984MESPa
     # deploy:
