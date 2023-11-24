@@ -32,7 +32,7 @@ docker-compose -f BUILD_TAMPLATE.yaml up -d
 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-file-management:NT-dev1.0
 
 # url
-http://10.44.66.50/
+http://10.44.66.50/auth/login
 http://10.44.66.50/data-mapping
 http://10.44.66.50/consentv2
 http://10.44.66.50/organization
