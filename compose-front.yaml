@@ -12,6 +12,6 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.onefence-frontend-service.entrypoints=${TRAEFIK_ENTRYPOINT}
-      - traefik.http.routers.onefence-frontend-service.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.onefence-frontend-service.rule=Host(`${TRAEFIK_HOST_FRONT}.${TRAEFIK_HOST}`)
       - traefik.http.services.onefence-frontend-service.loadbalancer.server.port=3000
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-frontend-service:${IMAGE_TAG}

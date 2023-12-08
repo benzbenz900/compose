@@ -1,0 +1,327 @@
+name: ntpdpa
+services:
+  PostgreSQLDB:
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: keycloak
+    image: postgres:15.2-alpine
+    networks:
+      host: null
+    restart: always
+    volumes:
+    - type: volume
+      source: dbPostgreSQL
+      target: /var/lib/postgresql/data
+      volume: {}
+  keycloak-service:
+    depends_on:
+      PostgreSQLDB:
+        condition: service_started
+        required: true
+      traefik-gateway:
+        condition: service_started
+        required: true
+    environment:
+      KC_DB: postgres
+      KC_DB_PASSWORD: password
+      KC_DB_SCHEMA: public
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_URL_HOST: PostgreSQLDB
+      KC_DB_URL_PORT: "5432"
+      KC_DB_USERNAME: keycloak
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_RELATIVE_PATH: /usermanagement
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-keycloak-container-theme:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.keycloak-service.entrypoints: websecure
+      traefik.http.routers.keycloak-service.rule: Host(`internal-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/usermanagement`)
+      traefik.http.services.keycloak-service.loadbalancer.server.port: "8080"
+    networks:
+      host: null
+    restart: always
+  minio-service:
+    command:
+    - server
+    - /data
+    - --console-address
+    - :9001
+    depends_on:
+      traefik-gateway:
+        condition: service_started
+        required: true
+    environment:
+      MINIO_BROWSER_REDIRECT_URL: http://internal-dev.pdpa.itbc.intra.ntplc.co.th/s3admin
+      MINIO_ROOT_PASSWORD: Strong#Pass#2022
+      MINIO_ROOT_USER: masoud
+    image: minio/minio:RELEASE.2023-08-29T23-07-35Z
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.minio-service-admin.entrypoints: websecure
+      traefik.http.routers.minio-service-admin.rule: Host(`internal-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/s3admin`)
+      traefik.http.routers.minio-service-admin.service: minio-service-admin
+      traefik.http.routers.minio-service.entrypoints: websecure
+      traefik.http.routers.minio-service.rule: Host(`internal-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/s3`)
+      traefik.http.routers.minio-service.service: minio-service
+      traefik.http.services.minio-service-admin.loadbalancer.server.port: "9001"
+      traefik.http.services.minio-service.loadbalancer.server.port: "9000"
+    networks:
+      host: null
+    volumes:
+    - type: volume
+      source: minio_storage
+      target: /data
+      volume: {}
+  mongoDB:
+    image: mongo:6.0
+    networks:
+      host: null
+    ports:
+    - mode: ingress
+      target: 27017
+      published: "5000"
+      protocol: tcp
+    restart: always
+    volumes:
+    - type: volume
+      source: mongo_storage
+      target: /data/db
+      volume: {}
+  notification-service:
+    depends_on:
+      mongoDB:
+        condition: service_started
+        required: true
+      traefik-gateway:
+        condition: service_started
+        required: true
+    environment:
+      MongoDBURIVm: mongodb://mongoDB:27017/
+      RUNLOCALVM: "TRUE"
+      environment: production
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-notification-sns-websocket-sqs:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.notification-service-1.stripprefix.prefixes: /notification-service
+      traefik.http.routers.notification-service.entrypoints: websecure
+      traefik.http.routers.notification-service.middlewares: notification-service-1
+      traefik.http.routers.notification-service.rule: Host(`api-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/notification-service`)
+      traefik.http.services.notification-service.loadbalancer.server.port: "5006"
+    networks:
+      host: null
+    restart: always
+  onefence-comment-service:
+    depends_on:
+      mongoDB:
+        condition: service_started
+        required: true
+      traefik-gateway:
+        condition: service_started
+        required: true
+    environment:
+      MongoDBURIVm: mongodb://mongoDB:27017/
+      RUNLOCALVM: "TRUE"
+      environment: production
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-comment-service:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.onefence-comment-service-1.stripprefix.prefixes: /comment_service
+      traefik.http.routers.onefence-comment-service.entrypoints: websecure
+      traefik.http.routers.onefence-comment-service.middlewares: onefence-comment-service-1
+      traefik.http.routers.onefence-comment-service.rule: Host(`api-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/comment_service`)
+      traefik.http.services.onefence-comment-service.loadbalancer.server.port: "5007"
+    networks:
+      host: null
+    restart: always
+  onefence-consent-v2-api:
+    environment:
+      MongoDBURIVm: mongodb://mongoDB:27017/
+      RUNLOCALVM: "TRUE"
+      environment: production
+      urlOrg: http://onefence-usermanagement-organization:5003/user/org/department/
+      urlPeople: http://onefence-usermanagement-organization:5003/user/org/user/
+      urlUser: http://onefence-usermanagement-organization:5003/user/org/user/
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-consent-v2-api:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.onefence-consent-v2-api-1.stripprefix.prefixes: /consentv2
+      traefik.http.routers.onefence-consent-v2-api.entrypoints: websecure
+      traefik.http.routers.onefence-consent-v2-api.middlewares: onefence-consent-v2-api-1
+      traefik.http.routers.onefence-consent-v2-api.rule: Host(`api-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/consentv2`)
+      traefik.http.services.onefence-consent-v2-api.loadbalancer.server.port: "5002"
+    networks:
+      host: null
+    restart: always
+  onefence-data-mapping-service:
+    environment:
+      MongoDBURIVm: mongodb://mongoDB:27017/
+      RUNLOCALVM: "TRUE"
+      environment: production
+      urlOrg: http://onefence-usermanagement-organization:5003/user/org/department/
+      urlPeople: http://onefence-usermanagement-organization:5003/user/org/user/
+      urlUser: http://onefence-usermanagement-organization:5003/user/org/user/
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-data-mapping-service:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.onefence-data-mapping-1.stripprefix.prefixes: /data-mapping
+      traefik.http.routers.onefence-data-mapping-service.entrypoints: websecure
+      traefik.http.routers.onefence-data-mapping-service.middlewares: onefence-data-mapping-1
+      traefik.http.routers.onefence-data-mapping-service.rule: Host(`api-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/data-mapping`)
+      traefik.http.services.onefence-data-mapping-service.loadbalancer.server.port: "5002"
+    networks:
+      host: null
+    restart: always
+  onefence-file-management:
+    depends_on:
+      minio-service:
+        condition: service_started
+        required: true
+      mongoDB:
+        condition: service_started
+        required: true
+      traefik-gateway:
+        condition: service_started
+        required: true
+    environment:
+      BUCKETPRIVATE: file-management-private
+      BUCKETPUBLIC: file-management-public
+      MINIOAccessKey: sQbsujtsXHgRqbZ7fT56
+      MINIOSecretKey: E6LU34Px31p1tmXnDE5eeddYEMY9F3yS984MESPa
+      MINIOendpoint: api-dev.pdpa.itbc.intra.ntplc.co.th/s3
+      MINIOendpointPublic: api-dev.pdpa.itbc.intra.ntplc.co.th/s3
+      MongoDBURIVm: mongodb://mongoDB:27017/
+      RUNLOCALVM: "TRUE"
+      environment: production
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-file-management:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.onefence-file-management-1.stripprefix.prefixes: /file_management
+      traefik.http.routers.onefence-file-management.entrypoints: websecure
+      traefik.http.routers.onefence-file-management.middlewares: onefence-file-management-1
+      traefik.http.routers.onefence-file-management.rule: Host(`api-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/file_management`)
+      traefik.http.services.onefence-file-management.loadbalancer.server.port: "5007"
+    networks:
+      host: null
+    restart: always
+  onefence-frontend-service:
+    environment:
+      environment: production
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-frontend-service:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.onefence-frontend-service.entrypoints: websecure
+      traefik.http.routers.onefence-frontend-service.rule: Host(`internal-dev.pdpa.itbc.intra.ntplc.co.th`)
+      traefik.http.services.onefence-frontend-service.loadbalancer.server.port: "3000"
+    networks:
+      host: null
+    restart: always
+  onefence-log:
+    depends_on:
+      mongoDB:
+        condition: service_started
+        required: true
+      traefik-gateway:
+        condition: service_started
+        required: true
+    environment:
+      MongoDBURIVm: mongodb://mongoDB:27017/
+      RUNLOCALVM: "TRUE"
+      environment: production
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-log:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.onefence-log.stripprefix.prefixes: /log
+      traefik.http.routers.onefence-log.entrypoints: websecure
+      traefik.http.routers.onefence-log.middlewares: onefence-log
+      traefik.http.routers.onefence-log.rule: Host(`api-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/log`)
+      traefik.http.services.onefence-log.loadbalancer.server.port: "5004"
+    networks:
+      host: null
+    restart: always
+  onefence-usermanagement-organization:
+    depends_on:
+      keycloak-service:
+        condition: service_started
+        required: true
+      mongoDB:
+        condition: service_started
+        required: true
+      onefence-log:
+        condition: service_started
+        required: true
+      traefik-gateway:
+        condition: service_started
+        required: true
+    environment:
+      AWS_ACCESS_KEY_ID: AKIAURXCKNYCYSNQ6ZVR
+      AWS_SECRET_ACCESS_KEY: 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
+      KEYCLOAKADMIN: admin
+      KEYCLOAKADMINPASS: admin
+      KEYCLOAKURLVM: http://internal-dev.pdpa.itbc.intra.ntplc.co.th/usermanagement
+      LogArnOrURLvm: http://onefence-log:5004/event/
+      MongoDBURIVm: mongodb://mongoDB:27017/
+      RUNLOCALVM: "TRUE"
+      environment: production
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-usermanagement-api:NT-dev1.0
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.onefence-usermanagement-organization-1.stripprefix.prefixes: /organization
+      traefik.http.routers.onefence-usermanagement-organization.entrypoints: websecure
+      traefik.http.routers.onefence-usermanagement-organization.middlewares: onefence-usermanagement-organization-1
+      traefik.http.routers.onefence-usermanagement-organization.rule: Host(`api-dev.pdpa.itbc.intra.ntplc.co.th`)
+        && PathPrefix(`/organization`)
+      traefik.http.services.onefence-usermanagement-organization.loadbalancer.server.port: "5003"
+    networks:
+      host: null
+    restart: always
+  traefik-gateway:
+    command:
+    - --api.insecure=true
+    - --providers.docker=true
+    - --entrypoints.websecure.address=:80
+    image: traefik:v2.4
+    labels:
+      traefik.enable: "false"
+    networks:
+      host: null
+    ports:
+    - mode: ingress
+      target: 80
+      published: "80"
+      protocol: tcp
+    - mode: ingress
+      target: 8080
+      published: "8080"
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+      bind:
+        create_host_path: true
+networks:
+  host:
+    name: ntpdpa_host
+volumes:
+  dbPostgreSQL:
+    name: ntpdpa_dbPostgreSQL
+    driver: local
+  minio_storage:
+    name: ntpdpa_minio_storage
+    driver: local
+  mongo_storage:
+    name: ntpdpa_mongo_storage
+    driver: local

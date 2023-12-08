@@ -18,7 +18,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.onefence-data-mapping-service.entrypoints=${TRAEFIK_ENTRYPOINT}
       
-      - traefik.http.routers.onefence-data-mapping-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/data-mapping`)
+      - traefik.http.routers.onefence-data-mapping-service.rule=Host(`${TRAEFIK_HOST_API}.${TRAEFIK_HOST}`) && PathPrefix(`/data-mapping`)
       - traefik.http.routers.onefence-data-mapping-service.middlewares=onefence-data-mapping-1
       - traefik.http.services.onefence-data-mapping-service.loadbalancer.server.port=5002
       - traefik.http.middlewares.onefence-data-mapping-1.stripprefix.prefixes=/data-mapping
@@ -41,7 +41,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.onefence-consent-v2-api.entrypoints=${TRAEFIK_ENTRYPOINT}
-      - traefik.http.routers.onefence-consent-v2-api.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/consentv2`)
+      - traefik.http.routers.onefence-consent-v2-api.rule=Host(`${TRAEFIK_HOST_API}.${TRAEFIK_HOST}`) && PathPrefix(`/consentv2`)
       
       - traefik.http.routers.onefence-consent-v2-api.middlewares=onefence-consent-v2-api-1
       - traefik.http.services.onefence-consent-v2-api.loadbalancer.server.port=5002
@@ -63,7 +63,7 @@ services:
       - RUNLOCALVM=TRUE
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - KEYCLOAKURLVM=${HTTP_OR_HTTPS}${TRAEFIK_HOST}/usermanagement
+      - KEYCLOAKURLVM=${HTTP_OR_HTTPS}${TRAEFIK_HOST_FRONT}.${TRAEFIK_HOST}/usermanagement
       - KEYCLOAKADMIN=${KEYCLOAKADMIN}
       - KEYCLOAKADMINPASS=${KEYCLOAKADMINPASS}
       - LogArnOrURLvm=${HTTP_OR_HTTPS}onefence-log:5004/event/
@@ -74,7 +74,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.onefence-usermanagement-organization.entrypoints=${TRAEFIK_ENTRYPOINT}
-      - traefik.http.routers.onefence-usermanagement-organization.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/organization`)
+      - traefik.http.routers.onefence-usermanagement-organization.rule=Host(`${TRAEFIK_HOST_API}.${TRAEFIK_HOST}`) && PathPrefix(`/organization`)
       
       - traefik.http.services.onefence-usermanagement-organization.loadbalancer.server.port=5003
       - traefik.http.routers.onefence-usermanagement-organization.middlewares=onefence-usermanagement-organization-1
@@ -99,7 +99,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.onefence-log.entrypoints=${TRAEFIK_ENTRYPOINT}
-      - traefik.http.routers.onefence-log.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/log`)
+      - traefik.http.routers.onefence-log.rule=Host(`${TRAEFIK_HOST_API}.${TRAEFIK_HOST}`) && PathPrefix(`/log`)
       
       - traefik.http.routers.onefence-log.middlewares=onefence-log
       - traefik.http.services.onefence-log.loadbalancer.server.port=5004
@@ -124,7 +124,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.notification-service.entrypoints=${TRAEFIK_ENTRYPOINT}
-      - traefik.http.routers.notification-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/notification-service`)
+      - traefik.http.routers.notification-service.rule=Host(`${TRAEFIK_HOST_API}.${TRAEFIK_HOST}`) && PathPrefix(`/notification-service`)
       
       - traefik.http.routers.notification-service.middlewares=notification-service-1
       - traefik.http.services.notification-service.loadbalancer.server.port=5006
@@ -149,7 +149,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.onefence-comment-service.entrypoints=${TRAEFIK_ENTRYPOINT}
-      - traefik.http.routers.onefence-comment-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/comment_service`)
+      - traefik.http.routers.onefence-comment-service.rule=Host(`${TRAEFIK_HOST_API}.${TRAEFIK_HOST}`) && PathPrefix(`/comment_service`)
       
       - traefik.http.routers.onefence-comment-service.middlewares=onefence-comment-service-1
       - traefik.http.services.onefence-comment-service.loadbalancer.server.port=5007
@@ -171,8 +171,8 @@ services:
       - MongoDBURIVm=mongodb://mongoDB:27017/
       - BUCKETPRIVATE=file-management-private
       - BUCKETPUBLIC=file-management-public
-      - MINIOendpoint=${TRAEFIK_HOST}/s3
-      - MINIOendpointPublic=${TRAEFIK_HOST}/s3
+      - MINIOendpoint=${TRAEFIK_HOST_API}.${TRAEFIK_HOST}/s3
+      - MINIOendpointPublic=${TRAEFIK_HOST_API}.${TRAEFIK_HOST}/s3
       - MINIOAccessKey=sQbsujtsXHgRqbZ7fT56
       - MINIOSecretKey=E6LU34Px31p1tmXnDE5eeddYEMY9F3yS984MESPa
     # deploy:
@@ -181,7 +181,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.onefence-file-management.entrypoints=${TRAEFIK_ENTRYPOINT}
-      - traefik.http.routers.onefence-file-management.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/file_management`)
+      - traefik.http.routers.onefence-file-management.rule=Host(`${TRAEFIK_HOST_API}.${TRAEFIK_HOST}`) && PathPrefix(`/file_management`)
       
       - traefik.http.routers.onefence-file-management.middlewares=onefence-file-management-1
       - traefik.http.services.onefence-file-management.loadbalancer.server.port=5007

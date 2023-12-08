@@ -21,14 +21,14 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
       KC_HTTP_ENABLED: "true"
-      KC_HTTP_RELATIVE_PATH: "${HTTP_OR_HTTPS}${TRAEFIK_HOST}/usermanagement"
+      KC_HTTP_RELATIVE_PATH: "/usermanagement"
     # deploy:
     #   mode: replicated
     #   replicas: 1
     labels:
         - traefik.enable=true
         - traefik.http.routers.keycloak-service.entrypoints=${TRAEFIK_ENTRYPOINT}
-        - traefik.http.routers.keycloak-service.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/usermanagement`)
-        - traefik.http.routers.keycloak-service.middlewares=keycloak-service-1
-        - traefik.http.middlewares.keycloak-service-1.stripprefix.prefixes=/usermanagement
+        - traefik.http.routers.keycloak-service.rule=Host(`${TRAEFIK_HOST_FRONT}.${TRAEFIK_HOST}`) && PathPrefix(`/usermanagement`)
+        # - traefik.http.routers.keycloak-service.middlewares=keycloak-service-1
+        # - traefik.http.middlewares.keycloak-service-1.stripprefix.prefixes=/usermanagement
         - traefik.http.services.keycloak-service.loadbalancer.server.port=8080

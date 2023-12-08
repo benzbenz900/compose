@@ -18,6 +18,8 @@ docker-compose --version
 
 
 # 3333
+docker compose --env-file .env-local -p ntpdpa config -o BUILD_TAMPLATE.yaml
+
 docker compose -p ntpdpa config -o BUILD_TAMPLATE.yaml
 docker-compose -f BUILD_TAMPLATE.yaml up -d
 ```

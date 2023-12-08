@@ -19,6 +19,8 @@ services:
       - host
     image: mongo:6.0
     restart: always
+    ports:
+      - ${MONGO_DB_PORT}:27017
     # deploy:
     #   mode: replicated
     #   replicas: 1
