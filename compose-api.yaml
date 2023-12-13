@@ -2,7 +2,7 @@ version: "3.9"
 services:
   onefence-data-mapping-service:
     networks:
-      - host
+      - ${NETWORK}
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -26,7 +26,7 @@ services:
 
   onefence-consent-v2-api:
     networks:
-      - host
+      - ${NETWORK}
     restart: always
     environment:
       - environment=${RUN_MODE}
@@ -50,7 +50,7 @@ services:
 
   onefence-usermanagement-organization:
     networks:
-      - host
+      - ${NETWORK}
     depends_on:
       - traefik-gateway
       - keycloak-service
@@ -83,7 +83,7 @@ services:
 
   onefence-log:
     networks:
-      - host
+      - ${NETWORK}
     depends_on:
       - traefik-gateway
       - mongoDB
@@ -108,7 +108,7 @@ services:
 
   notification-service:
     networks:
-      - host
+      - ${NETWORK}
     depends_on:
       - traefik-gateway
       - mongoDB
@@ -131,9 +131,25 @@ services:
       - traefik.http.middlewares.notification-service-1.stripprefix.prefixes=/notification-service
     image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-notification-sns-websocket-sqs:${IMAGE_TAG}
 
+  onefence-notification-service:
+    networks:
+      - ${NETWORK}
+    restart: always
+    environment:
+      - environment=${RUN_MODE}
+      - clientId=${sms_clientId}
+      - clientSecret=${sms_clientSecret}
+      - username=${sms_username}
+      - password=${sms_password}
+      - MailDefaultLogo=${MailDefaultLogo}
+      # - SMTP_HOST=# - SMTP_USERNAME=# - SMTP_PASSWORD=# - SMTP_PORT=# - SMTP_SSL=# - SMTP_TLS=# - SMTP_SENDER=# - SMTP_SENDER_NAME=
+    ports:
+      - ${sms_port}:8765
+    image: 312933510661.dkr.ecr.ap-southeast-1.amazonaws.com/onefence-notification-services:latest
+
   onefence-comment-service:
     networks:
-      - host
+      - ${NETWORK}
     depends_on:
       - traefik-gateway
       - mongoDB
@@ -158,7 +174,7 @@ services:
 
   onefence-file-management:
     networks:
-      - host
+      - ${NETWORK}
     depends_on:
       - traefik-gateway
       - mongoDB
@@ -169,12 +185,12 @@ services:
       - environment=${RUN_MODE}
       - RUNLOCALVM=TRUE
       - MongoDBURIVm=mongodb://mongoDB:27017/
-      - BUCKETPRIVATE=file-management-private
-      - BUCKETPUBLIC=file-management-public
-      - MINIOendpoint=${TRAEFIK_HOST_API}.${TRAEFIK_HOST}/s3
-      - MINIOendpointPublic=${TRAEFIK_HOST_API}.${TRAEFIK_HOST}/s3
-      - MINIOAccessKey=sQbsujtsXHgRqbZ7fT56
-      - MINIOSecretKey=E6LU34Px31p1tmXnDE5eeddYEMY9F3yS984MESPa
+      - BUCKETPRIVATE=${BUCKETPRIVATE}
+      - BUCKETPUBLIC=${BUCKETPUBLIC}
+      - MINIOendpoint=${HTTP_OR_HTTPS}${TRAEFIK_HOST_API}.${TRAEFIK_HOST}/s3
+      - MINIOendpointPublic=${HTTP_OR_HTTPS}${TRAEFIK_HOST_API}.${TRAEFIK_HOST}/s3
+      - MINIOAccessKey=${MINIOAccessKey}
+      - MINIOSecretKey=${MINIOSecretKey}
     # deploy:
     #   mode: replicated
     #   replicas: 1
